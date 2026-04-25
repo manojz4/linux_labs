@@ -1,0 +1,118 @@
+system requirement
+-
+ubuntu server adapter1=nat  adapter2=host only
+ubuntu pc/client adapter1=host only
+-
+Install ubuntu server ,and remove iso-settings-uncheck connected and power on vm
+-
+ip a
+you will see one nat and other unassigned
+-
+conf netplan(server)
+sudo nano /etc/netplan/*.yaml
+
+network:
+  version: 2
+  ethernets:
+    ens33:
+      dhcp4: true   # NAT internet
+    ens37:
+       dhcp4: no
+       addresses:
+          - 192.168.100.1/24
+-
+sudo netplan apply- save and apply
+-
+ip a- verify
+-
+ping google.com
+----------------
+client setup
+
+settings-network-wired-gear icon
+go to ipv4 tab-manual
+    
+   192.168.100.2
+   255.255.255.0
+   192.168.100.1
+   8.8.8.8 optional
+-
+click apply- turn n/w off-on
+-
+ip a- you will see 192.168.100.2
+-
+test client to server
+ping 192.168.100.1  must work
+----------------
+On server
+
+sudo apt update
+sudo apt install squid -y
+-
+ls /etc/squid
+you will see squid.conf
+-
+sudo nano/etc/squid/squid.conf
+
+ctrl+w- http_access deny all -enter
+
+above "http_access deny all" add the lines
+
+-
+
+acl mynetwork src 192.168.100.0/24
+acl blocked_sites dstdomain .facebook.com .youtube.com
+
+http_access deny blocked_sites
+http_access allow mynetwork
+
+http_access deny all
+
+-
+ctrl x, y,enter
+-
+sudo systemctl restart squid
+sudo systemctl status squid
+----------------
+On Client
+open browser-settings-network-proxy
+
+set -manual proxy
+ http proxy:192.168.100.1
+ port- 3128
+also check "also use this proxy for https"
+-
+apply n/w changes
+turn wired off- wait 2-3 second-turn wired on
+-
+open website
+facebook.com not work
+other website work
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
