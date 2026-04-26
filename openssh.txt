@@ -1,0 +1,22 @@
+requirement
+-
+vm1(Linux live server) nat and host only
+vm2(client windows )host only
+-
+on server
+
+sudo apt update
+sudo apt install openssh-server -y
+sudo systemctl start ssh
+sudo systemctl enable ssh
+sudo systemctl status ssh
+sudo ufw allow ssh
+-
+from windows ping server's host ip 
+ping 192.168.131.142
+-
+ssh using cmd - ssh manoj@192.168.131.142
+-
+ssh using putty - install putty and enter ip 
+-
+check ssh logs - sudo tail -f /var/log/auth.log
