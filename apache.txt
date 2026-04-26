@@ -1,0 +1,123 @@
+Apache Web Server 
+Install and configure Apache and deploy a simple website.
+Configure name-based virtual hosting with two separate domains
+
+
+VM Requirement 
+Server VM (Ubuntu Server )
+Adapter 1: NAT (for internet)
+Adapter 2: Host-Only (for internal communication)
+
+Client VM (to test website)
+If you used 2 adapters on server (NAT + Host-Only)
+Then for Client:
+Keep Host-Only Adapter (must)
+—-
+Install Apache & Deploy Simple Website (on server)
+sudo apt install apache2 -y 
+sudo systemctl start apache2
+sudo systemctl enable apache2
+sudo systemctl status apache2 
+
+—----
+ip a (confirm the servers ip to check default page in client vm)
+
+—
+http://<server-ip> (in client browser)
+You will see apache default webpage
+—
+Create Simple Website 
+cd /var/www/html 
+
+sudo nano index.html 
+
+		<h1>My Apache Server is Working</h1>
+                         <p>This is my first website</p> 
+—--------
+Refresh browser
+—------
+
+
+
+
+
+PART B — Name-Based Virtual Hosting (2 Websites) 
+
+We’ll create:
+site1.com
+site2.com
+Both will run on the same Apache server
+—-
+STEP 1: Create Website Folders
+sudo mkdir /var/www/site1
+sudo mkdir /var/www/site2
+—-------
+STEP 2: Give Permissions 
+sudo chown -R $USER:$USER /var/www/site1
+sudo chown -R $USER:$USER /var/www/site2 
+—---------
+STEP 3: Create Website Pages
+👉 site1
+nano /var/www/site1/index.html
+Paste:
+<h1>Welcome to Site1</h1>
+<p>This is site1 hosted on Apache</p>
+
+👉 site2
+nano /var/www/site2/index.html
+Paste:
+<h1>Welcome to Site2</h1>
+<p>This is site2 hosted on Apache</p>
+—-------
+🔹 STEP 4: Create Virtual Host Files
+Apache config folder:
+cd /etc/apache2/sites-available
+
+👉 site1 config
+sudo nano site1.conf
+Paste:
+<VirtualHost *:80>
+   ServerName site1.com
+   DocumentRoot /var/www/site1
+
+   ErrorLog ${APACHE_LOG_DIR}/site1_error.log
+   CustomLog ${APACHE_LOG_DIR}/site1_access.log combined
+</VirtualHost>
+
+👉 site2 config
+sudo nano site2.conf
+Paste:
+<VirtualHost *:80>
+   ServerName site2.com
+   DocumentRoot /var/www/site2
+
+   ErrorLog ${APACHE_LOG_DIR}/site2_error.log
+   CustomLog ${APACHE_LOG_DIR}/site2_access.log combined
+</VirtualHost>
+—-------
+🔹 STEP 5: Enable Sites
+sudo a2ensite site1.conf
+sudo a2ensite site2.conf
+—-
+STEP 6: Disable Default Site (important)
+sudo a2dissite 000-default.conf
+—--
+STEP 7: Restart Apache
+sudo systemctl restart apache2
+—--
+STEP 8: Configure Hosts File (VERY IMPORTANT) 
+
+Linux client:
+sudo nano /etc/hosts
+
+Add:
+192.168.x.x site1.com
+192.168.x.x site2.com
+—------
+STEP 9: Test in Browser
+Open browser and type:
+http://site1.com
+👉 Shows Site1
+http://site2.com
+👉 Shows Site2
+
